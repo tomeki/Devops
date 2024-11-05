@@ -28,7 +28,7 @@ spec:
     spec: 
       containers: 
         - name: flask-container 
-          image: eleki/projet-flask-v0.1:ef8079e20ec887b1a0e3d5815b031350153c4be3
+          image: eleki/projet-flask-v0.1:101aeec59e4efca3423c64cb941d462f85636f80
           resources: 
             requests: 
               memory: 128Mi 
