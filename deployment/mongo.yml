@@ -1,0 +1,77 @@
+apiVersion: v1  # Version de l'API Kubernetes utilisée pour cette configuration
+kind: Service  # Type de ressource Kubernetes à créer, ici un Service
+metadata:  # Métadonnées pour la ressource
+  name: mongo-service  # Nom du Service
+  namespace: devops-demo  # Namespace dans lequel ce Service sera créé
+spec:  # Spécifications du Service
+  selector:  # Sélecteur pour cibler les pods
+    app: mongo  # Les pods avec cette étiquette (label) seront ciblés par ce Service
+  ports:  # Configuration des ports exposés par le Service
+    - protocol: TCP  # Protocole utilisé par le Service, ici TCP
+      port: 27017  # Port sur lequel le Service sera accessible
+      targetPort: 27017  # Port sur lequel les pods écoutent les connexions
+---
+apiVersion: apps/v1  # Version de l'API Kubernetes utilisée pour cette configuration
+kind: StatefulSet  # Type de ressource Kubernetes à créer, ici un StatefulSet
+metadata:  # Métadonnées pour la ressource
+  name: mongo  # Nom du StatefulSet
+  namespace: devops-demo  # Namespace dans lequel ce StatefulSet sera créé
+spec:  # Spécifications du StatefulSet
+  serviceName: "mongo-service"  # Nom du service associé à ce StatefulSet
+  replicas: 1  # Nombre de réplicas (instances) du pod MongoDB
+  selector:  # Sélecteur pour identifier les pods gérés par ce StatefulSet
+    matchLabels:  # Critères de correspondance des étiquettes
+      app: mongo  # Label utilisé pour sélectionner les pods
+  template:  # Template pour les pods
+    metadata:  # Métadonnées pour les pods
+      labels:  # Labels appliqués aux pods
+        app: mongo  # Label pour identifier les pods MongoDB
+    spec:  # Spécifications des pods
+      containers:  # Définition des conteneurs dans les pods
+        - name: mongo  # Nom du conteneur
+          image: mongo:latest  # Image Docker utilisée pour ce conteneur
+          resources:  # Spécification des ressources
+            requests:  # Ressources minimales demandées
+              memory: 128Mi  # Mémoire demandée
+              cpu: 100m  # CPU demandé
+            limits:  # Limites maximales des ressources
+              memory: 256Mi  # Mémoire maximale autorisée
+              cpu: 200m  # CPU maximale autorisée
+          env:  # Variables d'environnement
+            - name: MONGO_INITDB_ROOT_USERNAME  # Nom d'utilisateur MongoDB
+              valueFrom:  # Valeur obtenue depuis un Secret
+                secretKeyRef:  # Référence au Secret
+                  name: mongo-credentials  # Nom du Secret
+                  key: username  # Clé dans le Secret
+            - name: MONGO_INITDB_ROOT_PASSWORD  # Mot de passe MongoDB
+              valueFrom:  # Valeur obtenue depuis un Secret
+                secretKeyRef:  # Référence au Secret
+                  name: mongo-credentials  # Nom du Secret
+                  key: password  # Clé dans le Secret
+          ports:  # Ports exposés par le conteneur
+            - containerPort: 27017  # Port MongoDB
+          volumeMounts:  # Points de montage des volumes
+            - name: mongo-persistent-storage  # Nom du volume pour le stockage persistant
+              mountPath: /data/db  # Chemin de montage dans le conteneur
+            - name: init-script  # Nom du volume pour le script d'initialisation
+              mountPath: /docker-entrypoint-initdb.d/init.js  # Chemin de montage dans le conteneur
+              subPath: init.js  # Sous-chemin du volume monté
+      volumes:  # Définition des volumes
+        - name: mongo-persistent-storage  # Nom du volume pour le stockage persistant
+          persistentVolumeClaim:  # Référence à un PersistentVolumeClaim
+            claimName: mongo-persistent-storage  # Nom du PersistentVolumeClaim
+        - name: init-script  # Nom du volume pour le script d'initialisation
+          configMap:  # Référence à un ConfigMap
+            name: mongo-init-script  # Nom du ConfigMap
+---
+apiVersion: v1  # Version de l'API Kubernetes utilisée pour cette configuration
+kind: PersistentVolumeClaim  # Type de ressource Kubernetes à créer, ici une demande de volume persistant
+metadata:  # Métadonnées pour la ressource
+  name: mongo-persistent-storage  # Nom de la demande de volume persistant
+  namespace: devops-demo  # Namespace dans lequel cette demande sera créée
+spec:  # Spécification de la demande de volume persistant
+  accessModes:  # Modes d'accès demandés pour le volume
+    - ReadWriteOnce  # Le volume peut être monté en lecture/écriture par un seul nœud à la fois
+  resources:  # Ressources demandées pour le volume
+    requests:  # Capacité demandée pour le volume
+      storage: 200Mi  # Capacité de stockage demandée (200 Méga-octets)
