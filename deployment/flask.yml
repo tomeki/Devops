@@ -28,7 +28,7 @@ spec:  # Spécification du Deployment
     spec:  # Spécification des pods créés à partir de ce modèle
       containers:  # Conteneurs à exécuter dans les pods
         - name: flask-container  # Nom du conteneur
-          image: eleki/projet-flask-v0.1:test  # Image Docker utilisée pour le conteneur
+          image: eleki/projet-flask-v0.1:ef8079e20ec887b1a0e3d5815b031350153c4be3
           resources:  # Ressources allouées au conteneur
             requests:  # Demandes minimales de ressources
               memory: 128Mi  # Demande de 128 Méga-octets de mémoire
