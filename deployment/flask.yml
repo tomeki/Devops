@@ -1,59 +1,59 @@
-apiVersion: v1  # Version de l'API Kubernetes utilisée pour cette configuration
-kind: Service  # Type de ressource Kubernetes à créer, ici un Service
-metadata:  # Métadonnées pour la ressource
-  name: flask  # Nom du Service
-  namespace: devops-demo  # Namespace dans lequel ce Service sera créé
-spec:  # Spécification du Service
-  selector:  # Sélecteur pour déterminer les pods ciblés par ce Service
-    app: flask  # Sélectionne les pods avec l'étiquette "app" égale à "flask"
-  ports:  # Ports exposés par le Service
-    - protocol: TCP  # Protocole utilisé pour les communications, ici TCP
-      port: 5000  # Port sur lequel le Service écoutera les connexions
-      targetPort: 5000  # Port sur lequel les connexions seront redirigées vers les pods cibles
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: flask 
+  namespace: devops-demo 
+spec: 
+  selector: 
+    app: flask 
+  ports: 
+    - protocol: TCP 
+      port: 5000 
+      targetPort: 5000 
 ---
-apiVersion: apps/v1  # Version de l'API Kubernetes utilisée pour cette configuration
-kind: Deployment  # Type de ressource Kubernetes à créer, ici un Deployment
-metadata:  # Métadonnées pour la ressource
-  name: flask-deployment  # Nom du Deployment
-  namespace: devops-demo  # Namespace dans lequel ce Deployment sera créé
-spec:  # Spécification du Deployment
-  replicas: 1  # Nombre de répliques (pods) à maintenir en fonctionnement
-  selector:  # Sélecteur pour déterminer les pods ciblés par ce Deployment
-    matchLabels:  # Étiquettes utilisées pour la sélection des pods
-      app: flask  # Sélectionne les pods avec l'étiquette "app" égale à "flask"
-  template:  # Modèle pour la création des pods
-    metadata:  # Métadonnées pour le modèle
-      labels:  # Étiquettes à appliquer aux pods créés à partir de ce modèle
-        app: flask  # Étiquette "app" égale à "flask"
-    spec:  # Spécification des pods créés à partir de ce modèle
-      containers:  # Conteneurs à exécuter dans les pods
-        - name: flask-container  # Nom du conteneur
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: flask-deployment 
+  namespace: devops-demo 
+spec: 
+  replicas: 1 
+  selector: 
+    matchLabels: 
+      app: flask 
+  template: 
+    metadata: 
+      labels: 
+        app: flask 
+    spec: 
+      containers: 
+        - name: flask-container 
           image: eleki/projet-flask-v0.1:ef8079e20ec887b1a0e3d5815b031350153c4be3
-          resources:  # Ressources allouées au conteneur
-            requests:  # Demandes minimales de ressources
-              memory: 128Mi  # Demande de 128 Méga-octets de mémoire
-              cpu: 100m  # Demande de 100 milli-CPU (0.1 CPU)
-            limits:  # Limites maximales de ressources
-              memory: 256Mi  # Limite de 256 Méga-octets de mémoire
-              cpu: 200m  # Limite de 200 milli-CPU (0.2 CPU)
-          ports:  # Ports à exposer dans le conteneur
-            - containerPort: 5000  # Port sur lequel le conteneur écoutera les connexions
-          env:  # Variables d'environnement pour le conteneur
-            - name: MONGO_HOST  # Nom de la variable d'environnement
-              value: mongo-service  # Valeur de la variable d'environnement
-            - name: MONGO_PORT  # Nom de la variable d'environnement
-              value: "27017"  # Valeur de la variable d'environnement (en chaîne de caractères)
-            - name: MONGO_DB  # Nom de la variable d'environnement
-              value: devops  # Valeur de la variable d'environnement
-            - name: MONGO_COLLECTION  # Nom de la variable d'environnement
-              value: users  # Valeur de la variable d'environnement
-            - name: MONGO_USERNAME  # Nom de la variable d'environnement
-              valueFrom:  # Source de la valeur de la variable d'environnement
-                secretKeyRef:  # Référence à une clé dans un Secret Kubernetes
-                  name: mongo-credentials  # Nom du Secret contenant le nom d'utilisateur MongoDB
-                  key: username  # Clé dans le Secret contenant le nom d'utilisateur MongoDB
-            - name: MONGO_PASSWORD  # Nom de la variable d'environnement
-              valueFrom:  # Source de la valeur de la variable d'environnement
-                secretKeyRef:  # Référence à une clé dans un Secret Kubernetes
-                  name: mongo-credentials  # Nom du Secret contenant le mot de passe MongoDB
-                  key: password  # Clé dans le Secret contenant le mot de passe MongoDB
+          resources: 
+            requests: 
+              memory: 128Mi 
+              cpu: 100m 
+            limits: 
+              memory: 256Mi 
+              cpu: 200m 
+          ports: 
+            - containerPort: 5000 
+          env: 
+            - name: MONGO_HOST 
+              value: mongo-service 
+            - name: MONGO_PORT 
+              value: "27017" 
+            - name: MONGO_DB 
+              value: devops 
+            - name: MONGO_COLLECTION 
+              value: users 
+            - name: MONGO_USERNAME 
+              valueFrom: 
+                secretKeyRef: 
+                  name: mongo-credentials 
+                  key: username 
+            - name: MONGO_PASSWORD 
+              valueFrom: 
+                secretKeyRef: 
+                  name: mongo-credentials 
+                  key: password 
