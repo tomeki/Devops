@@ -31,7 +31,7 @@ jobs:
   
       - name: Update Deployment Image Tag  # Nom de l'étape dans le workflow GitHub Actions
         run: |  # Début de l'exécution d'un script shell
-          sed -i "s|${{ secrets.DOCKER_USERNAME }}/projet-flask-v0.1:.*|${{ secrets.DOCKER_USERNAME }}/projet-flask-v0.1:${{ github.sha }}|g" ./deployment/flask.yaml
+          sed -i "s|${{ secrets.DOCKER_USERNAME }}/projet-flask-v0.1:.*|${{ secrets.DOCKER_USERNAME }}/projet-flask-v0.1:${{ github.sha }}|g" ./deployment/flask.yml
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
           git add .
